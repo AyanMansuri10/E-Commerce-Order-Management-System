@@ -107,7 +107,7 @@ public class Main{
 
     // CREATE ORDER
     // ABSTRACT FACTORY
-    public static void createOrder() {
+    public static void createOrder(){
         System.out.println("\n----- CREATE ORDER -----");
         System.out.print("Customer Name: ");
         String customerName =scanner.nextLine();
@@ -184,207 +184,62 @@ public class Main{
 
         Order order =factory.createOrder(customerName,productName,quantity,totalAmount);
         saveOrder(order,productNumber);
-}
+    }
 
     // SAVE ORDER
     public static void saveOrder(Order order,int productNumber){
+        String sql ="INSERT INTO orders "+ "(customer_name, product_number, "+ "product_name, quantity, total_amount, "+ "status, payment_status, "+ "delivery_status, order_type) "+ "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        try{
+            Connection connection =DatabaseConnection.getInstance().getConnection();
+            PreparedStatement statement =connection.prepareStatement(sql);
+            statement.setString(1,order.getCustomerName());
+            statement.setInt(2,productNumber);
+            statement.setString(3,order.getProductName());
+            statement.setInt(4,order.getQuantity());
+            statement.setDouble(5,order.getTotalAmount());
+            statement.setString(6,order.getStatus());
+            statement.setString(7,"PENDING");
+            statement.setString(8,"NOT SHIPPED");
+            statement.setString(9,order.getOrderType());
 
-    String sql =
-            "INSERT INTO orders "
-                    + "(customer_name, product_number, "
-                    + "product_name, quantity, total_amount, "
-                    + "status, payment_status, "
-                    + "delivery_status, order_type) "
-                    + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
-
-    try {
-
-        Connection connection =
-                DatabaseConnection
-                        .getInstance()
-                        .getConnection();
-
-        PreparedStatement statement =
-                connection.prepareStatement(sql);
-
-        statement.setString(
-                1,
-                order.getCustomerName()
-        );
-
-        statement.setInt(
-                2,
-                productNumber
-        );
-
-        statement.setString(
-                3,
-                order.getProductName()
-        );
-
-        statement.setInt(
-                4,
-                order.getQuantity()
-        );
-
-        statement.setDouble(
-                5,
-                order.getTotalAmount()
-        );
-
-        statement.setString(
-                6,
-                order.getStatus()
-        );
-
-        statement.setString(
-                7,
-                "PENDING"
-        );
-
-        statement.setString(
-                8,
-                "NOT SHIPPED"
-        );
-
-        statement.setString(
-                9,
-                order.getOrderType()
-        );
-
-        int rowsAffected =
-                statement.executeUpdate();
-
-        if (rowsAffected > 0) {
-
-            // Reduce stock
-
-            String updateStock =
-                    "UPDATE products "
-                            + "SET stock = stock - ? "
-                            + "WHERE product_number = ?";
-
-            PreparedStatement stockStatement =
-                    connection.prepareStatement(
-                            updateStock
-                    );
-
-            stockStatement.setInt(
-                    1,
-                    order.getQuantity()
-            );
-
-            stockStatement.setInt(
-                    2,
-                    productNumber
-            );
-
-            stockStatement.executeUpdate();
-
-            System.out.println(
-                    "\nOrder created successfully!"
-            );
-
-            System.out.println(
-                    "Product Number: "
-                            + productNumber
-            );
-
-            System.out.println(
-                    "Payment Status: PENDING"
-            );
-
-            System.out.println(
-                    "Delivery Status: NOT SHIPPED"
-            );
+            int rowsAffected =statement.executeUpdate();
+            if (rowsAffected > 0){
+                // Reduce stock
+                String updateStock ="UPDATE products "+ "SET stock = stock - ? "+ "WHERE product_number = ?";
+                PreparedStatement stockStatement =connection.prepareStatement(updateStock);
+                stockStatement.setInt(1,order.getQuantity());
+                stockStatement.setInt(2,productNumber);
+                stockStatement.executeUpdate();
+                System.out.println("\nOrder created successfully!");
+                System.out.println("Product Number: "+ productNumber);
+                System.out.println("Payment Status: PENDING");
+                System.out.println("Delivery Status: NOT SHIPPED");
+            }
+        }catch(SQLException e) {
+            System.out.println("Error creating order!");
+            e.printStackTrace();
         }
-
-    } catch (SQLException e) {
-
-        System.out.println(
-                "Error creating order!"
-        );
-
-        e.printStackTrace();
     }
-}
 
+    public static void viewProducts(){
+        String sql ="SELECT product_number, name, "+ "category, price, stock "+ "FROM products "+ "ORDER BY product_number";
+        try{
+            Connection connection =DatabaseConnection.getInstance().getConnection();
+            PreparedStatement statement =connection.prepareStatement(sql);
+            ResultSet result =statement.executeQuery();
 
-public static void viewProducts() {
-
-    String sql =
-            "SELECT product_number, name, "
-                    + "category, price, stock "
-                    + "FROM products "
-                    + "ORDER BY product_number";
-
-    try {
-
-        Connection connection =
-                DatabaseConnection
-                        .getInstance()
-                        .getConnection();
-
-        PreparedStatement statement =
-                connection.prepareStatement(sql);
-
-        ResultSet result =
-                statement.executeQuery();
-
-        System.out.println(
-                "\n========== PRODUCTS =========="
-        );
-
-        System.out.printf(
-                "%-15s %-20s %-18s %-12s %-10s%n",
-                "Product No.",
-                "Product Name",
-                "Category",
-                "Price",
-                "Stock"
-        );
-
-        System.out.println(
-                "------------------------------------------------------------"
-        );
-
-        while (result.next()) {
-
-            System.out.printf(
-                    "%-15d %-20s %-18s Rs.%-8.2f %-10d%n",
-                    result.getInt(
-                            "product_number"
-                    ),
-                    result.getString(
-                            "name"
-                    ),
-                    result.getString(
-                            "category"
-                    ),
-                    result.getDouble(
-                            "price"
-                    ),
-                    result.getInt(
-                            "stock"
-                    )
-            );
+            System.out.println("\n========== PRODUCTS ==========");
+            System.out.printf("%-15s %-20s %-18s %-12s %-10s%n","Product No.","Product Name","Category","Price","Stock");
+            System.out.println("------------------------------------------------------------");
+            while(result.next()){
+                System.out.printf("%-15d %-20s %-18s Rs.%-8.2f %-10d%n",result.getInt("product_number"),result.getString("name"),result.getString("category"),result.getDouble("price"),result.getInt("stock"));
+            }
+            System.out.println("------------------------------------------------------------");
+        }catch(SQLException e){
+            System.out.println("Error retrieving products!");
+            e.printStackTrace();
         }
-
-        System.out.println(
-                "------------------------------------------------------------"
-        );
-
-    } catch (SQLException e) {
-
-        System.out.println(
-                "Error retrieving products!"
-        );
-
-        e.printStackTrace();
     }
-}
-
-
 
     // VIEW ALL ORDERS
     public static void viewOrders(){
@@ -424,7 +279,6 @@ public static void viewProducts() {
         System.out.println("\n----- UPDATE ORDER STATUS -----");
         System.out.print("Enter Order ID: ");
         int orderId =scanner.nextInt();
-
         System.out.println("\nSelect New Status:");
         System.out.println("1. CONFIRMED");
         System.out.println("2. PROCESSING");
@@ -433,7 +287,6 @@ public static void viewProducts() {
         System.out.print("Choice: ");
         int choice =scanner.nextInt();
         scanner.nextLine();
-
         String status;
         switch (choice){
             case 1:
@@ -452,13 +305,11 @@ public static void viewProducts() {
                 System.out.println("Invalid status!");
                 return;
         }
-
         String sql ="UPDATE orders "+ "SET status = ? "+ "WHERE order_id = ?";
         try{
             Connection connection =DatabaseConnection.getInstance().getConnection();
             PreparedStatement statement =connection.prepareStatement(sql);
             statement.setString(1,status);
-
             statement.setInt(2,orderId);
             int rowsAffected =statement.executeUpdate();
             if (rowsAffected == 0) {
@@ -470,7 +321,6 @@ public static void viewProducts() {
             subject.addObserver(new SMSNotification());
             subject.setOrderStatus(orderId,status);
             System.out.println("Order status updated successfully!");
-
         }catch(SQLException e) {
             System.out.println("Error updating order status!");
             e.printStackTrace();
@@ -482,83 +332,31 @@ public static void viewProducts() {
     public static void processPayment() {
         System.out.println("\n----- PROCESS PAYMENT -----");
         System.out.print("Enter Order ID: ");
-
-int orderId =
-        scanner.nextInt();
-
-scanner.nextLine();
-
-double amount;
-String getOrder =
-        "SELECT total_amount, payment_status "
-                + "FROM orders "
-                + "WHERE order_id = ?";
-
-try {
-
-    Connection connection =
-            DatabaseConnection
-                    .getInstance()
-                    .getConnection();
-
-    PreparedStatement statement =
-            connection.prepareStatement(
-                    getOrder
-            );
-
-    statement.setInt(
-            1,
-            orderId
-    );
-
-    ResultSet result =
-            statement.executeQuery();
-
-    if (!result.next()) {
-
-        System.out.println(
-                "Order ID not found!"
-        );
-
-        return;
-    }
-
-    amount =
-            result.getDouble(
-                    "total_amount"
-            );
-
-    String paymentStatus =
-            result.getString(
-                    "payment_status"
-            );
-
-    if (paymentStatus.equalsIgnoreCase(
-            "PAID")) {
-
-        System.out.println(
-                "This order has already been paid!"
-        );
-
-        return;
-    }
-
-    System.out.println(
-            "Payment Amount: Rs. "
-                    + amount
-    );
-
-} catch (SQLException e) {
-
-    System.out.println(
-            "Error retrieving order!"
-    );
-
-    e.printStackTrace();
-
-    return;
-}
-
+        int orderId =scanner.nextInt();
+        scanner.nextLine();
+        double amount;
+        String getOrder ="SELECT total_amount, payment_status "+ "FROM orders "+ "WHERE order_id = ?";
+        try{
+            Connection connection =DatabaseConnection.getInstance().getConnection();
+            PreparedStatement statement =connection.prepareStatement(getOrder);
+            statement.setInt(1,orderId);
+            ResultSet result =statement.executeQuery();
+            if(!result.next()){
+                System.out.println("Order ID not found!");
+                return;
+            }
+            amount =result.getDouble("total_amount");
+            String paymentStatus =result.getString("payment_status");
+            if(paymentStatus.equalsIgnoreCase("PAID")){
+                System.out.println("This order has already been paid!");
+                return;
+            }
+            System.out.println("Payment Amount: Rs. "+ amount);
+        }catch(SQLException e){
+            System.out.println("Error retrieving order!");
+            e.printStackTrace();
+            return;
+        }
         System.out.println("\nSelect Payment Method:");
         System.out.println("1. UPI");
         System.out.println("2. Card");
