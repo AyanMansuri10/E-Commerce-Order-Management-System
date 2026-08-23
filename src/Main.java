@@ -422,126 +422,94 @@ public class Main{
 
     // PROCESS DELIVERY
     // BRIDGE PATTERN
-    public static void processDelivery() {
-    System.out.println("\n----- PROCESS DELIVERY -----");
-    System.out.print("Enter Order ID: ");
-    int orderId = scanner.nextInt();
+    public static void processDelivery(){
+        System.out.println("\n----- PROCESS DELIVERY -----");
+        System.out.print("Enter Order ID: ");
+        int orderId = scanner.nextInt();
 
-    System.out.println("\nSelect Delivery Method:");
-    System.out.println("1. Standard Delivery");
-    System.out.println("2. Express Delivery");
-    System.out.print("Choice: ");
-    int deliveryChoice =scanner.nextInt();
+        System.out.println("\nSelect Delivery Method:");
+        System.out.println("1. Standard Delivery");
+        System.out.println("2. Express Delivery");
+        System.out.print("Choice: ");
+        int deliveryChoice =scanner.nextInt();
 
-    DeliveryMethod deliveryMethod;
-    String deliveryStatus;
-    if (deliveryChoice == 1) {
-        deliveryMethod = new StandardDelivery();
-        deliveryStatus ="SHIPPED";
-    }else if(deliveryChoice == 2) {
-        deliveryMethod =new ExpressDelivery();
-        deliveryStatus ="EXPRESS SHIPPED";
-    }else{
-        System.out.println("Invalid delivery method!");
+        DeliveryMethod deliveryMethod;
+        String deliveryStatus;
+        if (deliveryChoice == 1) {
+            deliveryMethod = new StandardDelivery();
+            deliveryStatus ="SHIPPED";
+        }else if(deliveryChoice == 2) {
+            deliveryMethod =new ExpressDelivery();
+            deliveryStatus ="EXPRESS SHIPPED";
+        }else{
+            System.out.println("Invalid delivery method!");
+            scanner.nextLine();
+            return;
+        }
+
+        System.out.println("\nSelect Order Processing Type:");
+        System.out.println("1. Standard Order");
+        System.out.println("2. Priority Order");
+        System.out.print("Choice: ");
+        int orderChoice =scanner.nextInt();
         scanner.nextLine();
-        return;
-    }
 
-    System.out.println("\nSelect Order Processing Type:");
-    System.out.println("1. Standard Order");
-    System.out.println("2. Priority Order");
-
-    System.out.print("Choice: ");
-    int orderChoice =scanner.nextInt();
-    scanner.nextLine();
-
-    OrderType order;
-    if (orderChoice == 1) {
-        order =new NormalOrder(deliveryMethod);
-    }else if(orderChoice == 2) {
-        order =new PriorityOrder(deliveryMethod);
-    }else{
-        System.out.println("Invalid order type!");
-        return;
-    }
-
-    // Bridge Pattern
-    order.processOrder(orderId);
-
-    String newOrderType;
-
-    if(orderChoice == 1){
-        newOrderType = "STANDARD";
-    }else{
-        newOrderType = "PRIORITY";
-    }
-
-    try{
-        Connection connection =
-                DatabaseConnection.getInstance().getConnection();
-
-        String sql =
-                "UPDATE orders "
-                + "SET delivery_status = ?, "
-                + "order_type = ? "
-                + "WHERE order_id = ?";
-
-        PreparedStatement statement =
-                connection.prepareStatement(sql);
-
-        statement.setString(1,deliveryStatus);
-        statement.setString(2,newOrderType);
-        statement.setInt(3,orderId);
-
-        int rows =
-                statement.executeUpdate();
-
-        if(rows == 0){
-            System.out.println("Order ID not found!");
+        OrderType order;
+        if (orderChoice == 1) {
+            order =new NormalOrder(deliveryMethod);
+        }else if(orderChoice == 2) {
+            order =new PriorityOrder(deliveryMethod);
+        }else{
+            System.out.println("Invalid order type!");
+            return;
         }
 
-    }catch(SQLException e){
-        System.out.println(
-                "Error updating delivery information!"
-        );
-        e.printStackTrace();
-    }
+        // Bridge Pattern
+        order.processOrder(orderId);
+        String newOrderType;
+        if(orderChoice == 1){
+            newOrderType = "STANDARD";
+        }else{
+            newOrderType = "PRIORITY";
+        }
+        try{
+            Connection connection =DatabaseConnection.getInstance().getConnection();
+            String sql ="UPDATE orders "+ "SET delivery_status = ?, "+ "order_type = ? "+ "WHERE order_id = ?";
+            PreparedStatement statement =connection.prepareStatement(sql);
+            statement.setString(1,deliveryStatus);
+            statement.setString(2,newOrderType);
+            statement.setInt(3,orderId);
 
-    try{
-        Connection connection =
-                DatabaseConnection.getInstance().getConnection();
-
-        String sql =
-                "UPDATE orders "
-                + "SET delivery_status = ? "
-                + "WHERE order_id = ?";
-
-        PreparedStatement statement =
-                connection.prepareStatement(sql);
-
-        statement.setString(1,deliveryStatus);
-        statement.setInt(2,orderId);
-
-        int rows =
-                statement.executeUpdate();
-
-        if (rows == 0){
-            System.out.println("Order ID not found!");
+            int rows =statement.executeUpdate();
+            if(rows == 0){
+                System.out.println("Order ID not found!");
+            }
+        }catch(SQLException e){
+            System.out.println("Error updating delivery information!");
+            e.printStackTrace();
         }
 
-    }catch(SQLException e) {
-        System.out.println(
-                "Error updating delivery status!"
-        );
-        e.printStackTrace();
+        try{
+            Connection connection =DatabaseConnection.getInstance().getConnection();
+            String sql ="UPDATE orders "+ "SET delivery_status = ? "+ "WHERE order_id = ?";
+            PreparedStatement statement =connection.prepareStatement(sql);
+            statement.setString(1,deliveryStatus);
+            statement.setInt(2,orderId);
+
+            int rows =statement.executeUpdate();
+            if (rows == 0){
+                System.out.println("Order ID not found!");
+            }
+        }catch(SQLException e) {
+            System.out.println("Error updating delivery status!");
+            e.printStackTrace();
+        }
     }
-}
 
     // PRODUCT MANAGEMENT
     // PROXY PATTERN
-    public static void manageProducts() {
+    public static void manageProducts(){
         System.out.println("\n----- PRODUCT MANAGEMENT -----");
-
         System.out.print("Are you Admin? (yes/no): ");
         String answer =scanner.nextLine();
 
