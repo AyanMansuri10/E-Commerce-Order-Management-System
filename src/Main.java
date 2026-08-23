@@ -76,8 +76,12 @@ public class Main{
                     processDelivery();
                     break;
                 case 6:
-                    manageProducts();
-                    break;
+                viewProducts();
+    break;
+
+case 7:
+    manageProducts();
+    break;
                 case 0:
                     running = false;
                     System.out.println("\nOrder Management System Closed.");
@@ -97,7 +101,8 @@ public class Main{
         System.out.println("3. Update Order Status");
         System.out.println("4. Process Payment");
         System.out.println("5. Process Delivery");
-        System.out.println("6. Manage Products");
+        System.out.println("6. View Products");
+        System.out.println("7. Manage Products");
         System.out.println("0. Exit");
         System.out.println("--------------------------------");
     }
@@ -105,72 +110,397 @@ public class Main{
     // CREATE ORDER
     // ABSTRACT FACTORY
     public static void createOrder() {
-        System.out.println("\n----- CREATE ORDER -----");
-        System.out.print("Customer Name: ");
-        String customerName = scanner.nextLine();
 
-        System.out.print("Product Name: ");
-        String productName = scanner.nextLine();
+    System.out.println(
+            "\n----- CREATE ORDER -----"
+    );
 
-        System.out.print("Quantity: ");
-        int quantity = scanner.nextInt();
+    System.out.print("Customer Name: ");
 
-        System.out.print("Total Amount: Rs. ");
-        double amount = scanner.nextDouble();
+    String customerName =
+            scanner.nextLine();
 
-        System.out.println("\nSelect Order Type:");
-        System.out.println("1. Standard Order");
-        System.out.println("2. Priority Order");
-        System.out.print("Choice: ");
-        int choice = scanner.nextInt();
-        scanner.nextLine();
+    // Show available products
 
-        OrderFactory factory;
-        if (choice == 1){
-            factory = new StandardOrderFactory();
-        }else if(choice == 2){
-            factory = new PriorityOrderFactory();
-        }else{
-            System.out.println("Invalid order type!");
+    viewProducts();
+
+    System.out.print(
+            "\nEnter Product Number: "
+    );
+
+    int productNumber =
+            scanner.nextInt();
+
+    System.out.print(
+            "Quantity: "
+    );
+
+    int quantity =
+            scanner.nextInt();
+
+    scanner.nextLine();
+
+    String productName = "";
+    double price = 0;
+    int stock = 0;
+
+    // Get product from database
+
+    String sql =
+            "SELECT name, price, stock "
+                    + "FROM products "
+                    + "WHERE product_number = ?";
+
+    try {
+
+        Connection connection =
+                DatabaseConnection
+                        .getInstance()
+                        .getConnection();
+
+        PreparedStatement statement =
+                connection.prepareStatement(sql);
+
+        statement.setInt(
+                1,
+                productNumber
+        );
+
+        ResultSet result =
+                statement.executeQuery();
+
+        if (!result.next()) {
+
+            System.out.println(
+                    "Product number not found!"
+            );
+
             return;
         }
-        Order order =factory.createOrder(customerName,productName,quantity,amount);
-        saveOrder(order);
+
+        productName =
+                result.getString("name");
+
+        price =
+                result.getDouble("price");
+
+        stock =
+                result.getInt("stock");
+
+        if (quantity <= 0) {
+
+            System.out.println(
+                    "Quantity must be greater than 0!"
+            );
+
+            return;
+        }
+
+        if (quantity > stock) {
+
+            System.out.println(
+                    "Insufficient stock!"
+            );
+
+            System.out.println(
+                    "Available stock: "
+                            + stock
+            );
+
+            return;
+        }
+
+    } catch (SQLException e) {
+
+        System.out.println(
+                "Error retrieving product!"
+        );
+
+        e.printStackTrace();
+
+        return;
     }
+
+    double totalAmount =
+            price * quantity;
+
+    System.out.println(
+            "\nProduct: "
+                    + productName
+    );
+
+    System.out.println(
+            "Price per unit: Rs. "
+                    + price
+    );
+
+    System.out.println(
+            "Quantity: "
+                    + quantity
+    );
+
+    System.out.println(
+            "Total Amount: Rs. "
+                    + totalAmount
+    );
+
+    System.out.println(
+            "\nSelect Order Type:"
+    );
+
+    System.out.println(
+            "1. Standard Order"
+    );
+
+    System.out.println(
+            "2. Priority Order"
+    );
+
+    System.out.print(
+            "Choice: "
+    );
+
+    int choice =
+            scanner.nextInt();
+
+    scanner.nextLine();
+
+    OrderFactory factory;
+
+    if (choice == 1) {
+
+        factory =
+                new StandardOrderFactory();
+
+    } else if (choice == 2) {
+
+        factory =
+                new PriorityOrderFactory();
+
+    } else {
+
+        System.out.println(
+                "Invalid order type!"
+        );
+
+        return;
+    }
+
+    Order order =
+            factory.createOrder(
+                    customerName,
+                    productName,
+                    quantity,
+                    totalAmount
+            );
+
+    saveOrder(
+            order,
+            productNumber
+    );
+}
 
     // SAVE ORDER
-    public static void saveOrder(Order order){
-        String sql =
-                "INSERT INTO orders "
-                        + "(customer_name, product_name, quantity, "
-                        + "total_amount, status, payment_status, "
-                        + "delivery_status, order_type) "
-                        + "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+    public static void saveOrder(
+        Order order,
+        int productNumber) {
 
-        try{
-            Connection connection =DatabaseConnection.getInstance().getConnection();
-            PreparedStatement statement = connection.prepareStatement(sql);
+    String sql =
+            "INSERT INTO orders "
+                    + "(customer_name, product_number, "
+                    + "product_name, quantity, total_amount, "
+                    + "status, payment_status, "
+                    + "delivery_status, order_type) "
+                    + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
-            statement.setString(1,order.getCustomerName());
-            statement.setString(2,order.getProductName());
-            statement.setInt(3,order.getQuantity());
-            statement.setDouble(4,order.getTotalAmount());
-            statement.setString(5,order.getStatus());
-            statement.setString(6,"PENDING");
-            statement.setString(7,"NOT SHIPPED");
-            statement.setString(8,order.getOrderType());
+    try {
 
-            int rowsAffected =statement.executeUpdate();
-            if (rowsAffected > 0){
-                System.out.println("\nOrder created successfully!");
-                System.out.println("Payment Status: PENDING");
-                System.out.println("Delivery Status: NOT SHIPPED");
-            }
-        }catch (SQLException e){
-            System.out.println("Error creating order!");
-            e.printStackTrace();
+        Connection connection =
+                DatabaseConnection
+                        .getInstance()
+                        .getConnection();
+
+        PreparedStatement statement =
+                connection.prepareStatement(sql);
+
+        statement.setString(
+                1,
+                order.getCustomerName()
+        );
+
+        statement.setInt(
+                2,
+                productNumber
+        );
+
+        statement.setString(
+                3,
+                order.getProductName()
+        );
+
+        statement.setInt(
+                4,
+                order.getQuantity()
+        );
+
+        statement.setDouble(
+                5,
+                order.getTotalAmount()
+        );
+
+        statement.setString(
+                6,
+                order.getStatus()
+        );
+
+        statement.setString(
+                7,
+                "PENDING"
+        );
+
+        statement.setString(
+                8,
+                "NOT SHIPPED"
+        );
+
+        statement.setString(
+                9,
+                order.getOrderType()
+        );
+
+        int rowsAffected =
+                statement.executeUpdate();
+
+        if (rowsAffected > 0) {
+
+            // Reduce stock
+
+            String updateStock =
+                    "UPDATE products "
+                            + "SET stock = stock - ? "
+                            + "WHERE product_number = ?";
+
+            PreparedStatement stockStatement =
+                    connection.prepareStatement(
+                            updateStock
+                    );
+
+            stockStatement.setInt(
+                    1,
+                    order.getQuantity()
+            );
+
+            stockStatement.setInt(
+                    2,
+                    productNumber
+            );
+
+            stockStatement.executeUpdate();
+
+            System.out.println(
+                    "\nOrder created successfully!"
+            );
+
+            System.out.println(
+                    "Product Number: "
+                            + productNumber
+            );
+
+            System.out.println(
+                    "Payment Status: PENDING"
+            );
+
+            System.out.println(
+                    "Delivery Status: NOT SHIPPED"
+            );
         }
+
+    } catch (SQLException e) {
+
+        System.out.println(
+                "Error creating order!"
+        );
+
+        e.printStackTrace();
     }
+}
+
+
+public static void viewProducts() {
+
+    String sql =
+            "SELECT product_number, name, "
+                    + "category, price, stock "
+                    + "FROM products "
+                    + "ORDER BY product_number";
+
+    try {
+
+        Connection connection =
+                DatabaseConnection
+                        .getInstance()
+                        .getConnection();
+
+        PreparedStatement statement =
+                connection.prepareStatement(sql);
+
+        ResultSet result =
+                statement.executeQuery();
+
+        System.out.println(
+                "\n========== PRODUCTS =========="
+        );
+
+        System.out.printf(
+                "%-15s %-20s %-18s %-12s %-10s%n",
+                "Product No.",
+                "Product Name",
+                "Category",
+                "Price",
+                "Stock"
+        );
+
+        System.out.println(
+                "------------------------------------------------------------"
+        );
+
+        while (result.next()) {
+
+            System.out.printf(
+                    "%-15d %-20s %-18s Rs.%-8.2f %-10d%n",
+                    result.getInt(
+                            "product_number"
+                    ),
+                    result.getString(
+                            "name"
+                    ),
+                    result.getString(
+                            "category"
+                    ),
+                    result.getDouble(
+                            "price"
+                    ),
+                    result.getInt(
+                            "stock"
+                    )
+            );
+        }
+
+        System.out.println(
+                "------------------------------------------------------------"
+        );
+
+    } catch (SQLException e) {
+
+        System.out.println(
+                "Error retrieving products!"
+        );
+
+        e.printStackTrace();
+    }
+}
+
+
 
     // VIEW ALL ORDERS
     public static void viewOrders(){
@@ -185,6 +515,12 @@ public class Main{
                 hasOrders = true;
                 System.out.println("\nOrder ID: "+ result.getInt("order_id"));
                 System.out.println("Customer: "+ result.getString("customer_name"));
+                System.out.println(
+        "Product No.: "
+                + result.getInt(
+                "product_number"
+        )
+);
                 System.out.println("Product: "+ result.getString("product_name"));
                 System.out.println("Quantity: "+ result.getInt("quantity"));
                 System.out.println("Total Amount: Rs. "+ result.getDouble("total_amount"));
@@ -267,10 +603,82 @@ public class Main{
     public static void processPayment() {
         System.out.println("\n----- PROCESS PAYMENT -----");
         System.out.print("Enter Order ID: ");
-        int orderId =scanner.nextInt();
 
-        System.out.print( "Payment Amount: Rs. ");
-        double amount =scanner.nextDouble();
+int orderId =
+        scanner.nextInt();
+
+scanner.nextLine();
+
+double amount;
+String getOrder =
+        "SELECT total_amount, payment_status "
+                + "FROM orders "
+                + "WHERE order_id = ?";
+
+try {
+
+    Connection connection =
+            DatabaseConnection
+                    .getInstance()
+                    .getConnection();
+
+    PreparedStatement statement =
+            connection.prepareStatement(
+                    getOrder
+            );
+
+    statement.setInt(
+            1,
+            orderId
+    );
+
+    ResultSet result =
+            statement.executeQuery();
+
+    if (!result.next()) {
+
+        System.out.println(
+                "Order ID not found!"
+        );
+
+        return;
+    }
+
+    amount =
+            result.getDouble(
+                    "total_amount"
+            );
+
+    String paymentStatus =
+            result.getString(
+                    "payment_status"
+            );
+
+    if (paymentStatus.equalsIgnoreCase(
+            "PAID")) {
+
+        System.out.println(
+                "This order has already been paid!"
+        );
+
+        return;
+    }
+
+    System.out.println(
+            "Payment Amount: Rs. "
+                    + amount
+    );
+
+} catch (SQLException e) {
+
+    System.out.println(
+            "Error retrieving order!"
+    );
+
+    e.printStackTrace();
+
+    return;
+}
 
         System.out.println("\nSelect Payment Method:");
         System.out.println("1. UPI");
@@ -395,7 +803,7 @@ public class Main{
             statement.setString(1,deliveryStatus);
             statement.setString(2,newOrderType);
             statement.setInt(3,orderId);
-            
+
             int rows =statement.executeUpdate();
             if(rows == 0){
                 System.out.println("Order ID not found!");

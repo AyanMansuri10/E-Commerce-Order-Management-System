@@ -43,6 +43,7 @@ public class DatabaseConnection{
         String productsTable =
                 "CREATE TABLE IF NOT EXISTS products ("
                         + "product_id INTEGER PRIMARY KEY AUTOINCREMENT, "
+                        + "product_number INTEGER UNIQUE NOT NULL, "
                         + "name TEXT NOT NULL, "
                         + "category TEXT NOT NULL, "
                         + "price REAL NOT NULL, "
@@ -50,17 +51,20 @@ public class DatabaseConnection{
                         + ")";
 
         String ordersTable =
-                "CREATE TABLE IF NOT EXISTS orders ("
-                        + "order_id INTEGER PRIMARY KEY AUTOINCREMENT, "
-                        + "customer_name TEXT NOT NULL, "
-                        + "product_name TEXT NOT NULL, "
-                        + "quantity INTEGER NOT NULL, "
-                        + "total_amount REAL NOT NULL, "
-                        + "status TEXT NOT NULL, "
-                        + "payment_status TEXT NOT NULL DEFAULT 'PENDING', "
-                        + "delivery_status TEXT NOT NULL DEFAULT 'NOT SHIPPED', "
-                        + "order_type TEXT NOT NULL"
-                        + ")";
+        "CREATE TABLE IF NOT EXISTS orders ("
+                + "order_id INTEGER PRIMARY KEY AUTOINCREMENT, "
+                + "customer_name TEXT NOT NULL, "
+                + "product_number INTEGER NOT NULL, "
+                + "product_name TEXT NOT NULL, "
+                + "quantity INTEGER NOT NULL, "
+                + "total_amount REAL NOT NULL, "
+                + "status TEXT NOT NULL, "
+                + "payment_status TEXT NOT NULL DEFAULT 'PENDING', "
+                + "delivery_status TEXT NOT NULL DEFAULT 'NOT SHIPPED', "
+                + "order_type TEXT NOT NULL, "
+                + "FOREIGN KEY (product_number) "
+                + "REFERENCES products(product_number)"
+                + ")";
 
         String paymentsTable =
                 "CREATE TABLE IF NOT EXISTS payments ("
@@ -87,36 +91,38 @@ public class DatabaseConnection{
     private void insertSampleData() {
 
         String insertProducts =
-                "INSERT OR IGNORE INTO products "
-                        + "(product_id, name, category, price, stock) "
-                        + "VALUES "
-                        + "(1, 'Laptop', 'Electronics', 65000, 15), "
-                        + "(2, 'Wireless Mouse', 'Electronics', 1200, 50), "
-                        + "(3, 'Shampoo', 'Personal Care', 350, 100), "
-                        + "(4, 'T-Shirt', 'Clothing', 799, 75), "
-                        + "(5, 'Headphones', 'Electronics', 2500, 30)";
+        "INSERT OR IGNORE INTO products "
+                + "(product_number, name, category, price, stock) "
+                + "VALUES "
+                + "(101, 'Laptop', 'Electronics', 65000, 15), "
+                + "(102, 'Wireless Mouse', 'Electronics', 1200, 50), "
+                + "(103, 'Shampoo', 'Personal Care', 350, 100), "
+                + "(104, 'T-Shirt', 'Clothing', 799, 75), "
+                + "(105, 'Headphones', 'Electronics', 2500, 30)";
 
         String insertOrders =
-                "INSERT OR IGNORE INTO orders "
-                        + "(order_id, customer_name, product_name, "
-                        + "quantity, total_amount, status, "
-                        + "payment_status, delivery_status, order_type) "
-                        + "VALUES "
-                        + "(1, 'Rahul Sharma', 'Laptop', 1, 65000, "
-                        + "'PROCESSING', 'PAID', 'SHIPPED', 'PRIORITY'), "
-                        + "(2, 'Priya Patel', 'Shampoo', 2, 700, "
-                        + "'SHIPPED', 'PAID', 'DELIVERED', 'STANDARD'), "
-                        + "(3, 'Amit Kumar', 'Headphones', 1, 2500, "
-                        + "'CONFIRMED', 'PENDING', 'NOT SHIPPED', 'STANDARD')";
+        "INSERT OR IGNORE INTO orders "
+                + "(order_id, customer_name, product_number, "
+                + "product_name, quantity, total_amount, status, "
+                + "payment_status, delivery_status, order_type) "
+                + "VALUES "
+                + "(1, 'Rahul Sharma', 101, 'Laptop', 1, 65000, "
+                + "'PROCESSING', 'PAID', 'SHIPPED', 'PRIORITY'), "
+
+                + "(2, 'Priya Patel', 103, 'Shampoo', 2, 700, "
+                + "'SHIPPED', 'PAID', 'DELIVERED', 'STANDARD'), "
+
+                + "(3, 'Amit Kumar', 105, 'Headphones', 1, 2500, "
+                + "'CONFIRMED', 'PENDING', 'NOT SHIPPED', 'STANDARD')";
 
         String insertPayments =
-                "INSERT OR IGNORE INTO payments "
-                        + "(payment_id, order_id, payment_method, "
-                        + "amount, payment_status) "
-                        + "VALUES "
-                        + "(1, 1, 'UPI', 65000, 'PAID'), "
-                        + "(2, 2, 'CARD', 700, 'PAID'), "
-                        + "(3, 3, 'COD', 2500, 'PENDING')";
+        "INSERT OR IGNORE INTO payments "
+                + "(payment_id, order_id, payment_method, "
+                + "amount, payment_status) "
+                + "VALUES "
+                + "(1, 1, 'UPI', 65000, 'PAID'), "
+                + "(2, 2, 'CARD', 700, 'PAID'), "
+                + "(3, 3, 'COD', 2500, 'PENDING')";
 
         try(Statement statement =connection.createStatement()){
             statement.executeUpdate(insertProducts);
