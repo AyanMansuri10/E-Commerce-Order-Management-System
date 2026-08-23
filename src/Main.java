@@ -34,15 +34,13 @@ import java.sql.SQLException;
 
 import java.util.Scanner;
 
-public class Main {
-
+public class Main{
     private static final Scanner scanner = new Scanner(System.in);
 
-    public static void main(String[] args) {
+    public static void main(String[] args){
 
         // Singleton Pattern
         DatabaseConnection.getInstance();
-
         boolean running = true;
 
         System.out.println("\n==================================");
@@ -50,17 +48,14 @@ public class Main {
         System.out.println("==================================");
 
         while (running) {
-
             showMenu();
             System.out.print("Enter your choice: ");
             int choice;
             try{
                 choice = scanner.nextInt();
                 scanner.nextLine();
-            }catch (Exception e) {
-                System.out.println(
-                        "Please enter a valid number!"
-                );
+            }catch(Exception e){
+                System.out.println("Please enter a valid number!");
                 scanner.nextLine();
                 continue;
             }
@@ -94,10 +89,7 @@ public class Main {
         scanner.close();
     }
 
-    // ==========================================
     // MENU
-    // ==========================================
-
     public static void showMenu(){
         System.out.println("\n------------- MENU -------------");
         System.out.println("1. Create Order");
@@ -110,11 +102,8 @@ public class Main {
         System.out.println("--------------------------------");
     }
 
-    // ==========================================
     // CREATE ORDER
     // ABSTRACT FACTORY
-    // ==========================================
-
     public static void createOrder() {
         System.out.println("\n----- CREATE ORDER -----");
         System.out.print("Customer Name: ");
@@ -132,29 +121,24 @@ public class Main {
         System.out.println("\nSelect Order Type:");
         System.out.println("1. Standard Order");
         System.out.println("2. Priority Order");
-
         System.out.print("Choice: ");
         int choice = scanner.nextInt();
         scanner.nextLine();
 
         OrderFactory factory;
-        if (choice == 1) {
+        if (choice == 1){
             factory = new StandardOrderFactory();
-        }else if(choice == 2) {
+        }else if(choice == 2){
             factory = new PriorityOrderFactory();
         }else{
             System.out.println("Invalid order type!");
             return;
         }
-
         Order order =factory.createOrder(customerName,productName,quantity,amount);
         saveOrder(order);
     }
 
-    // ==========================================
     // SAVE ORDER
-    // ==========================================
-
     public static void saveOrder(Order order){
         String sql =
                 "INSERT INTO orders "
@@ -177,7 +161,6 @@ public class Main {
             statement.setString(8,order.getOrderType());
 
             int rowsAffected =statement.executeUpdate();
-
             if (rowsAffected > 0){
                 System.out.println("\nOrder created successfully!");
                 System.out.println("Payment Status: PENDING");
@@ -189,10 +172,7 @@ public class Main {
         }
     }
 
-    // ==========================================
     // VIEW ALL ORDERS
-    // ==========================================
-
     public static void viewOrders(){
         String sql ="SELECT * FROM orders";
         try{
@@ -214,26 +194,19 @@ public class Main {
                 System.out.println("Order Type: "+ result.getString("order_type"));
                 System.out.println("--------------------------------");
             }
-            if (!hasOrders) {
-                System.out.println("No orders found!"
-                );
+            if(!hasOrders){
+                System.out.println("No orders found!");
             }
-        }catch (SQLException e) {
-            System.out.println("Error retrieving orders!"
-            );
+        }catch(SQLException e){
+            System.out.println("Error retrieving orders!");
             e.printStackTrace();
         }
     }
 
-    // ==========================================
     // UPDATE ORDER STATUS
     // OBSERVER PATTERN
-    // ==========================================
-
     public static void updateOrderStatus() {
-        System.out.println(
-                "\n----- UPDATE ORDER STATUS -----"
-        );
+        System.out.println("\n----- UPDATE ORDER STATUS -----");
         System.out.print("Enter Order ID: ");
         int orderId =scanner.nextInt();
 
@@ -242,13 +215,12 @@ public class Main {
         System.out.println("2. PROCESSING");
         System.out.println("3. SHIPPED");
         System.out.println("4. DELIVERED");
-
         System.out.print("Choice: ");
         int choice =scanner.nextInt();
         scanner.nextLine();
 
         String status;
-        switch (choice) {
+        switch (choice){
             case 1:
                 status = "CONFIRMED";
                 break;
@@ -266,11 +238,7 @@ public class Main {
                 return;
         }
 
-        String sql =
-                "UPDATE orders "
-                        + "SET status = ? "
-                        + "WHERE order_id = ?";
-
+        String sql ="UPDATE orders "+ "SET status = ? "+ "WHERE order_id = ?";
         try{
             Connection connection =DatabaseConnection.getInstance().getConnection();
             PreparedStatement statement =connection.prepareStatement(sql);
@@ -294,11 +262,8 @@ public class Main {
         }
     }
 
-    // ==========================================
     // PROCESS PAYMENT
     // FACTORY METHOD
-    // ==========================================
-
     public static void processPayment() {
         System.out.println("\n----- PROCESS PAYMENT -----");
         System.out.print("Enter Order ID: ");
@@ -311,7 +276,6 @@ public class Main {
         System.out.println("1. UPI");
         System.out.println("2. Card");
         System.out.println("3. Cash On Delivery");
-
         System.out.print("Choice: ");
         int choice =scanner.nextInt();
         scanner.nextLine();
@@ -319,7 +283,7 @@ public class Main {
         PaymentFactory factory = null;
         String paymentMethod = "";
 
-        switch(choice) {
+        switch(choice){
             case 1:
                 factory =new UPIPaymentFactory();
                 paymentMethod = "UPI";
@@ -365,25 +329,22 @@ public class Main {
             System.out.println("Payment processed successfully!");
             System.out.println("Payment Status: PAID");
 
-        }catch(SQLException e) {
+        }catch(SQLException e){
             System.out.println("Error processing payment!");
             e.printStackTrace();
         }
     }
-    // ==========================================
+
     // PROCESS DELIVERY
     // BRIDGE PATTERN
-    // ==========================================
     public static void processDelivery() {
         System.out.println("\n----- PROCESS DELIVERY -----");
         System.out.print("Enter Order ID: ");
-
         int orderId = scanner.nextInt();
 
         System.out.println("\nSelect Delivery Method:");
         System.out.println("1. Standard Delivery");
         System.out.println("2. Express Delivery");
-
         System.out.print("Choice: ");
         int deliveryChoice =scanner.nextInt();
 
@@ -441,10 +402,8 @@ public class Main {
         }
     }
 
-    // ==========================================
     // PRODUCT MANAGEMENT
     // PROXY PATTERN
-    // ==========================================
     public static void manageProducts() {
         System.out.println("\n----- PRODUCT MANAGEMENT -----");
 

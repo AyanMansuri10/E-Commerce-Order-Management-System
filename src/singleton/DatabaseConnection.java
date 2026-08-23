@@ -31,7 +31,7 @@ public class DatabaseConnection {
         }
     }
 
-    public static DatabaseConnection getInstance() {
+    public static DatabaseConnection getInstance(){
         if(instance == null) {
             instance = new DatabaseConnection();
         }
@@ -42,12 +42,8 @@ public class DatabaseConnection {
         return connection;
     }
 
-    // ==========================================
     // CREATE TABLES
-    // ==========================================
-
-    private void createTables() {
-
+    private void createTables(){
         String productsTable =
                 "CREATE TABLE IF NOT EXISTS products ("
                         + "product_id INTEGER PRIMARY KEY AUTOINCREMENT, "
@@ -94,10 +90,7 @@ public class DatabaseConnection {
         }
     }
 
-    // ==========================================
     // INSERT SAMPLE DATA
-    // ==========================================
-
     private void insertSampleData() {
 
         String insertProducts =
