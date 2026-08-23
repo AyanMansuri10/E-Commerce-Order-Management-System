@@ -36,7 +36,6 @@ import java.util.Scanner;
 
 public class Main{
     private static final Scanner scanner = new Scanner(System.in);
-
     public static void main(String[] args){
 
         // Singleton Pattern
@@ -47,7 +46,7 @@ public class Main{
         System.out.println("   E-COMMERCE ORDER MANAGEMENT");
         System.out.println("==================================");
 
-        while (running) {
+        while(running){
             showMenu();
             System.out.print("Enter your choice: ");
             int choice;
@@ -76,12 +75,11 @@ public class Main{
                     processDelivery();
                     break;
                 case 6:
-                viewProducts();
-    break;
-
-case 7:
-    manageProducts();
-    break;
+                    viewProducts();
+                    break;
+                case 7:
+                    manageProducts();
+                    break;
                 case 0:
                     running = false;
                     System.out.println("\nOrder Management System Closed.");
@@ -110,200 +108,86 @@ case 7:
     // CREATE ORDER
     // ABSTRACT FACTORY
     public static void createOrder() {
+        System.out.println("\n----- CREATE ORDER -----");
+        System.out.print("Customer Name: ");
+        String customerName =scanner.nextLine();
 
-    System.out.println(
-            "\n----- CREATE ORDER -----"
-    );
+        // Show available products
+        viewProducts();
+        System.out.print("\nEnter Product Number: ");
+        int productNumber =scanner.nextInt();
 
-    System.out.print("Customer Name: ");
+        System.out.print("Quantity: ");
+        int quantity =scanner.nextInt();
+        scanner.nextLine();
 
-    String customerName =
-            scanner.nextLine();
+        String productName = "";
+        double price = 0;
+        int stock = 0;
 
-    // Show available products
+        // Get product from database
+        String sql ="SELECT name, price, stock "+ "FROM products "+ "WHERE product_number = ?";
+        try{
+            Connection connection =DatabaseConnection.getInstance().getConnection();
 
-    viewProducts();
+            PreparedStatement statement = connection.prepareStatement(sql);
+            statement.setInt(1,productNumber);
 
-    System.out.print(
-            "\nEnter Product Number: "
-    );
+            ResultSet result =statement.executeQuery();
+            if(!result.next()){
+                System.out.println("Product number not found!");
+                return;
+            }
 
-    int productNumber =
-            scanner.nextInt();
+            productName =result.getString("name");
+            price =result.getDouble("price");
+            stock =result.getInt("stock");
 
-    System.out.print(
-            "Quantity: "
-    );
-
-    int quantity =
-            scanner.nextInt();
-
-    scanner.nextLine();
-
-    String productName = "";
-    double price = 0;
-    int stock = 0;
-
-    // Get product from database
-
-    String sql =
-            "SELECT name, price, stock "
-                    + "FROM products "
-                    + "WHERE product_number = ?";
-
-    try {
-
-        Connection connection =
-                DatabaseConnection
-                        .getInstance()
-                        .getConnection();
-
-        PreparedStatement statement =
-                connection.prepareStatement(sql);
-
-        statement.setInt(
-                1,
-                productNumber
-        );
-
-        ResultSet result =
-                statement.executeQuery();
-
-        if (!result.next()) {
-
-            System.out.println(
-                    "Product number not found!"
-            );
-
+            if(quantity <= 0){
+                System.out.println("Quantity must be greater than 0!");
+                return;
+            }
+            if(quantity>stock){
+                System.out.println("Insufficient stock!");
+                System.out.println("Available stock: "+ stock);
+                return;
+            }
+        }catch(SQLException e){
+            System.out.println("Error retrieving product!");
+            e.printStackTrace();
             return;
         }
 
-        productName =
-                result.getString("name");
+        double totalAmount =price * quantity;
+        System.out.println("\nProduct: "+ productName);
+        System.out.println("Price per unit: Rs. "+ price);
+        System.out.println("Quantity: "+ quantity);
+        System.out.println("Total Amount: Rs. "+ totalAmount);
 
-        price =
-                result.getDouble("price");
+        System.out.println("\nSelect Order Type:");
+        System.out.println("1. Standard Order");
+        System.out.println("2. Priority Order");
 
-        stock =
-                result.getInt("stock");
+        System.out.print("Choice: ");
+        int choice =scanner.nextInt();
+        scanner.nextLine();
 
-        if (quantity <= 0) {
-
-            System.out.println(
-                    "Quantity must be greater than 0!"
-            );
-
+        OrderFactory factory;
+        if(choice == 1){
+            factory =new StandardOrderFactory();
+        }else if(choice == 2){
+            factory =new PriorityOrderFactory();
+        }else{
+            System.out.println("Invalid order type!");
             return;
         }
 
-        if (quantity > stock) {
-
-            System.out.println(
-                    "Insufficient stock!"
-            );
-
-            System.out.println(
-                    "Available stock: "
-                            + stock
-            );
-
-            return;
-        }
-
-    } catch (SQLException e) {
-
-        System.out.println(
-                "Error retrieving product!"
-        );
-
-        e.printStackTrace();
-
-        return;
-    }
-
-    double totalAmount =
-            price * quantity;
-
-    System.out.println(
-            "\nProduct: "
-                    + productName
-    );
-
-    System.out.println(
-            "Price per unit: Rs. "
-                    + price
-    );
-
-    System.out.println(
-            "Quantity: "
-                    + quantity
-    );
-
-    System.out.println(
-            "Total Amount: Rs. "
-                    + totalAmount
-    );
-
-    System.out.println(
-            "\nSelect Order Type:"
-    );
-
-    System.out.println(
-            "1. Standard Order"
-    );
-
-    System.out.println(
-            "2. Priority Order"
-    );
-
-    System.out.print(
-            "Choice: "
-    );
-
-    int choice =
-            scanner.nextInt();
-
-    scanner.nextLine();
-
-    OrderFactory factory;
-
-    if (choice == 1) {
-
-        factory =
-                new StandardOrderFactory();
-
-    } else if (choice == 2) {
-
-        factory =
-                new PriorityOrderFactory();
-
-    } else {
-
-        System.out.println(
-                "Invalid order type!"
-        );
-
-        return;
-    }
-
-    Order order =
-            factory.createOrder(
-                    customerName,
-                    productName,
-                    quantity,
-                    totalAmount
-            );
-
-    saveOrder(
-            order,
-            productNumber
-    );
+        Order order =factory.createOrder(customerName,productName,quantity,totalAmount);
+        saveOrder(order,productNumber);
 }
 
     // SAVE ORDER
-    public static void saveOrder(
-        Order order,
-        int productNumber) {
+    public static void saveOrder(Order order,int productNumber){
 
     String sql =
             "INSERT INTO orders "
