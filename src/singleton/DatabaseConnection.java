@@ -122,8 +122,6 @@ public class DatabaseConnection{
             statement.executeUpdate(insertProducts);
             statement.executeUpdate(insertOrders);
             statement.executeUpdate(insertPayments);
-            System.out.println( "Initial data inserted successfully!");
-
         }catch(SQLException e){
             System.out.println("Error inserting initial data!");
             e.printStackTrace();
