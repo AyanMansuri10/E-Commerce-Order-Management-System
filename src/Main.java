@@ -381,7 +381,30 @@ public class Main{
 
         // Bridge Pattern
         order.processOrder(orderId);
-        try {
+        String newOrderType;
+        if(orderChoice == 1){
+            newOrderType = "STANDARD";
+        }else{
+            newOrderType = "PRIORITY";
+        }
+        try{
+            Connection connection =DatabaseConnection.getInstance().getConnection();
+            String sql ="UPDATE orders "+ "SET delivery_status = ?, "+ "order_type = ? "+ "WHERE order_id = ?";
+
+            PreparedStatement statement =connection.prepareStatement(sql);
+            statement.setString(1,deliveryStatus);
+            statement.setString(2,newOrderType);
+            statement.setInt(3,orderId);
+            
+            int rows =statement.executeUpdate();
+            if(rows == 0){
+                System.out.println("Order ID not found!");
+            }
+        }catch(SQLException e){
+            System.out.println("Error updating delivery information!");
+            e.printStackTrace();
+        }
+        try{
             Connection connection =DatabaseConnection.getInstance().getConnection();
 
             String sql ="UPDATE orders "+ "SET delivery_status = ? "+ "WHERE order_id = ?";
