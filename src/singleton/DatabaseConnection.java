@@ -61,6 +61,7 @@ public class DatabaseConnection{
                 + "status TEXT NOT NULL, "
                 + "payment_status TEXT NOT NULL DEFAULT 'PENDING', "
                 + "delivery_status TEXT NOT NULL DEFAULT 'NOT SHIPPED', "
+                + "delivery_type TEXT NOT NULL DEFAULT 'STANDARD', "
                 + "order_type TEXT NOT NULL, "
                 + "FOREIGN KEY (product_number) "
                 + "REFERENCES products(product_number)"
