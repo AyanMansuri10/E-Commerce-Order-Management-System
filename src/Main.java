@@ -391,9 +391,7 @@ public class Main{
             statement.setInt(2,orderId);
 
             int rows=statement.executeUpdate();
-            if(rows>0) {
-                System.out.println("Delivery Status: "+ deliveryStatus);
-            }else{
+            if (rows == 0){
                 System.out.println("Order ID not found!");
             }
         }catch(SQLException e) {
