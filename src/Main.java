@@ -510,11 +510,11 @@ public class Main{
     // PROXY PATTERN
     public static void manageProducts(){
         System.out.println("\n----- PRODUCT MANAGEMENT -----");
-        System.out.print("Are you Admin? (yes/no): ");
-        String answer =scanner.nextLine();
 
-        boolean isAdmin =answer.equalsIgnoreCase("yes");
-        ProductService service =new ProductServiceProxy(isAdmin);
+        System.out.print("Enter Admin Password: ");
+        String password = scanner.nextLine();
+
+        ProductService service =new ProductServiceProxy(password);
 
         System.out.println("\n1. Add Product");
         System.out.println("2. Delete Product");

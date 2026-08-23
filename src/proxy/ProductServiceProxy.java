@@ -5,33 +5,55 @@ import model.Product;
 public class ProductServiceProxy implements ProductService {
 
     private RealProductService realService;
-    private boolean isAdmin;
 
-    public ProductServiceProxy(boolean isAdmin) {
-        this.realService =new RealProductService();
-        this.isAdmin = isAdmin;
+    private String password;
+
+    private static final String ADMIN_PASSWORD = "admin123";
+
+    public ProductServiceProxy(String password) {
+
+        this.realService = new RealProductService();
+        this.password = password;
+    }
+
+    private boolean authenticate() {
+
+        return password.equals(ADMIN_PASSWORD);
     }
 
     @Override
     public void addProduct(Product product) {
-        if(isAdmin){
+
+        if (authenticate()) {
+
             realService.addProduct(product);
-        }else{
-            System.out.println("Access Denied! Only Admin can add products.");
+
+        } else {
+
+            System.out.println(
+                    "Access Denied! Incorrect Admin Password."
+            );
         }
     }
 
     @Override
     public void deleteProduct(int productId) {
-        if (isAdmin) {
+
+        if (authenticate()) {
+
             realService.deleteProduct(productId);
-        }else{
-            System.out.println("Access Denied! Only Admin can delete products.");
+
+        } else {
+
+            System.out.println(
+                    "Access Denied! Incorrect Admin Password."
+            );
         }
     }
 
     @Override
     public void viewProducts() {
+
         realService.viewProducts();
     }
 }
