@@ -5,23 +5,19 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-public class DatabaseConnection {
-
+public class DatabaseConnection{
     private static DatabaseConnection instance;
     private Connection connection;
 
     private static final String URL ="jdbc:sqlite:ecommerce.db";
 
     private DatabaseConnection(){
-
         try{
             Class.forName("org.sqlite.JDBC");
             connection = DriverManager.getConnection(URL);
-
             System.out.println("Database connected successfully!");
             createTables();
             insertSampleData();
-
         }catch(ClassNotFoundException e) {
             System.out.println("SQLite JDBC Driver not found!");
             e.printStackTrace();
@@ -81,9 +77,6 @@ public class DatabaseConnection {
             statement.execute(productsTable);
             statement.execute(ordersTable);
             statement.execute(paymentsTable);
-
-            System.out.println("Database tables created successfully!");
-
         }catch(SQLException e){
             System.out.println("Error creating database tables!");
             e.printStackTrace();
