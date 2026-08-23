@@ -5,51 +5,38 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-public class DatabaseConnection {
+public class DatabaseConnection{
 
     private static DatabaseConnection instance;
     private Connection connection;
 
-    private static final String URL =
-            "jdbc:sqlite:ecommerce.db";
-
-    private DatabaseConnection() {
-
-        try {
+    private static final String URL ="jdbc:sqlite:ecommerce.db";
+    private DatabaseConnection(){
+        try{
             Class.forName("org.sqlite.JDBC");
-
             connection = DriverManager.getConnection(URL);
-
             System.out.println("Database connected successfully!");
-
             createTables();
-
-        } catch (ClassNotFoundException e) {
-
+        }catch(ClassNotFoundException e){
             System.out.println("SQLite JDBC Driver not found!");
-
-        } catch (SQLException e) {
-
+        }catch(SQLException e){
             System.out.println("Database connection failed!");
             e.printStackTrace();
         }
     }
 
-    public static DatabaseConnection getInstance() {
-
+    public static DatabaseConnection getInstance(){
         if (instance == null) {
             instance = new DatabaseConnection();
         }
-
         return instance;
     }
 
-    public Connection getConnection() {
+    public Connection getConnection(){
         return connection;
     }
 
-    private void createTables() {
-
+    private void createTables(){
         String usersTable =
                 "CREATE TABLE IF NOT EXISTS users (" +
                 "user_id INTEGER PRIMARY KEY AUTOINCREMENT," +
@@ -88,16 +75,14 @@ public class DatabaseConnection {
                 "FOREIGN KEY(order_id) REFERENCES orders(order_id)" +
                 ")";
 
-        try (Statement statement = connection.createStatement()) {
-
+        try (Statement statement = connection.createStatement()){
             statement.execute(usersTable);
             statement.execute(productsTable);
             statement.execute(ordersTable);
             statement.execute(paymentsTable);
-
             System.out.println("Tables created successfully!");
 
-        } catch (SQLException e) {
+        }catch(SQLException e){
             e.printStackTrace();
         }
     }

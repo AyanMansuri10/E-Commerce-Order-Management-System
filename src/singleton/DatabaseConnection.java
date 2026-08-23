@@ -10,57 +10,35 @@ public class DatabaseConnection {
     private static DatabaseConnection instance;
     private Connection connection;
 
-    private static final String URL =
-            "jdbc:sqlite:ecommerce.db";
+    private static final String URL ="jdbc:sqlite:ecommerce.db";
 
-    private DatabaseConnection() {
+    private DatabaseConnection(){
 
-        try {
-
+        try{
             Class.forName("org.sqlite.JDBC");
+            connection = DriverManager.getConnection(URL);
 
-            connection =
-                    DriverManager.getConnection(URL);
-
-            System.out.println(
-                    "Database connected successfully!"
-            );
-
+            System.out.println("Database connected successfully!");
             createTables();
-
             insertSampleData();
 
-        } catch (ClassNotFoundException e) {
-
-            System.out.println(
-                    "SQLite JDBC Driver not found!"
-            );
-
+        }catch(ClassNotFoundException e) {
+            System.out.println("SQLite JDBC Driver not found!");
             e.printStackTrace();
-
-        } catch (SQLException e) {
-
-            System.out.println(
-                    "Database connection failed!"
-            );
-
+        }catch(SQLException e) {
+            System.out.println("Database connection failed!");
             e.printStackTrace();
         }
     }
 
     public static DatabaseConnection getInstance() {
-
-        if (instance == null) {
-
-            instance =
-                    new DatabaseConnection();
+        if(instance == null) {
+            instance = new DatabaseConnection();
         }
-
         return instance;
     }
 
-    public Connection getConnection() {
-
+    public Connection getConnection(){
         return connection;
     }
 
@@ -103,25 +81,15 @@ public class DatabaseConnection {
                         + "REFERENCES orders(order_id)"
                         + ")";
 
-        try (Statement statement =
-                     connection.createStatement()) {
-
+        try(Statement statement =connection.createStatement()) {
             statement.execute(productsTable);
-
             statement.execute(ordersTable);
-
             statement.execute(paymentsTable);
 
-            System.out.println(
-                    "Database tables created successfully!"
-            );
+            System.out.println("Database tables created successfully!");
 
-        } catch (SQLException e) {
-
-            System.out.println(
-                    "Error creating database tables!"
-            );
-
+        }catch(SQLException e){
+            System.out.println("Error creating database tables!");
             e.printStackTrace();
         }
     }
@@ -164,25 +132,14 @@ public class DatabaseConnection {
                         + "(2, 2, 'CARD', 700, 'PAID'), "
                         + "(3, 3, 'COD', 2500, 'PENDING')";
 
-        try (Statement statement =
-                     connection.createStatement()) {
-
+        try(Statement statement =connection.createStatement()){
             statement.executeUpdate(insertProducts);
-
             statement.executeUpdate(insertOrders);
-
             statement.executeUpdate(insertPayments);
+            System.out.println( "Initial data inserted successfully!");
 
-            System.out.println(
-                    "Initial data inserted successfully!"
-            );
-
-        } catch (SQLException e) {
-
-            System.out.println(
-                    "Error inserting initial data!"
-            );
-
+        }catch(SQLException e){
+            System.out.println("Error inserting initial data!");
             e.printStackTrace();
         }
     }

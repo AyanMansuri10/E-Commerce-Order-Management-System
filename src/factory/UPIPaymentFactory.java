@@ -1,9 +1,8 @@
 package factory;
 
-public class UPIPaymentFactory extends PaymentFactory {
-
+public class UPIPaymentFactory extends PaymentFactory{
     @Override
-    public Payment createPayment() {
+    public Payment createPayment(){
         return new UPIPayment();
     }
 }

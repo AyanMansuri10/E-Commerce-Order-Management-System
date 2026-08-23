@@ -1,6 +1,6 @@
 package model;
 
-public class Product {
+public class Product{
 
     private int productId;
     private String name;
@@ -8,10 +8,7 @@ public class Product {
     private double price;
     private int stock;
 
-    public Product(int productId, String name,
-                   String category, double price,
-                   int stock) {
-
+    public Product(int productId, String name,String category, double price,int stock){
         this.productId = productId;
         this.name = name;
         this.category = category;
@@ -41,11 +38,6 @@ public class Product {
 
     @Override
     public String toString() {
-
-        return productId + " | " +
-                name + " | " +
-                category + " | ₹" +
-                price + " | Stock: " +
-                stock;
+        return productId + " | " +name + " | " +category + " | ₹" +price + " | Stock: " +stock;
     }
 }

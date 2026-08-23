@@ -1,14 +1,8 @@
 package observer;
 
-public class EmailNotification
-        implements Observer {
-
+public class EmailNotification implements Observer{
     @Override
-    public void update(String message) {
-
-        System.out.println(
-                "[EMAIL NOTIFICATION] " +
-                message
-        );
+    public void update(String message){
+        System.out.println("[EMAIL NOTIFICATION] " +message);
     }
 }

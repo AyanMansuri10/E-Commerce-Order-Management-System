@@ -10,15 +10,7 @@ public class Order {
     private String status;
     private String orderType;
 
-    public Order(
-            int orderId,
-            String customerName,
-            String productName,
-            int quantity,
-            double totalAmount,
-            String status,
-            String orderType) {
-
+    public Order(int orderId,String customerName,String productName,int quantity,double totalAmount,String status,String orderType){
         this.orderId = orderId;
         this.customerName = customerName;
         this.productName = productName;
