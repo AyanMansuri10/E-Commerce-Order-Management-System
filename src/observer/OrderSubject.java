@@ -3,18 +3,18 @@ package observer;
 import java.util.ArrayList;
 import java.util.List;
 
-public class OrderSubject {
+public class OrderSubject{
 
     private List<Observer> observers = new ArrayList<>();
     private String orderStatus;
 
     // Add observer
-    public void addObserver(Observer observer) {
+    public void addObserver(Observer observer){
         observers.add(observer);
     }
 
     // Remove observer
-    public void removeObserver(Observer observer) {
+    public void removeObserver(Observer observer){
         observers.remove(observer);
     }
 

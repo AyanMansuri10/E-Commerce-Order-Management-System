@@ -106,7 +106,7 @@ public class Main{
     }
 
     // CREATE ORDER
-    // ABSTRACT FACTORY
+    // Abstract Factory
     public static void createOrder(){
         System.out.println("\n----- CREATE ORDER -----");
         System.out.print("Customer Name: ");
@@ -172,6 +172,7 @@ public class Main{
         int choice =scanner.nextInt();
         scanner.nextLine();
 
+        // Abstract Factory
         OrderFactory factory;
         if(choice == 1){
             factory =new StandardOrderFactory();
@@ -316,6 +317,7 @@ public class Main{
                 System.out.println("Order ID not found!");
                 return;
             }
+            // Observer Pattern
             OrderSubject subject =new OrderSubject();
             subject.addObserver(new EmailNotification());
             subject.addObserver(new SMSNotification());
@@ -365,6 +367,7 @@ public class Main{
         int choice =scanner.nextInt();
         scanner.nextLine();
 
+        // Factory Method
         PaymentFactory factory = null;
         String paymentMethod = "";
 

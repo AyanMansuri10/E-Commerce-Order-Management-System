@@ -2,7 +2,7 @@ package proxy;
 
 import model.Product;
 
-public class ProductServiceProxy implements ProductService {
+public class ProductServiceProxy implements ProductService{
     private RealProductService realService;
     private String password;
     private static final String ADMIN_PASSWORD = "admin123";
@@ -14,24 +14,24 @@ public class ProductServiceProxy implements ProductService {
         return password.equals(ADMIN_PASSWORD);
     }
     @Override
-    public void addProduct(Product product) {
+    public void addProduct(Product product){
         if(authenticate()){
             realService.addProduct(product);
-        } else {
+        }else{
             System.out.println("Access Denied! Incorrect Admin Password.");
         }
     }
 
     @Override
-    public void deleteProduct(int productId) {
-        if (authenticate()){
+    public void deleteProduct(int productId){
+        if(authenticate()){
             realService.deleteProduct(productId);
         }else{
             System.out.println("Access Denied! Incorrect Admin Password.");
         }
     }
     @Override
-    public void viewProducts() {
+    public void viewProducts(){
         realService.viewProducts();
     }
 }

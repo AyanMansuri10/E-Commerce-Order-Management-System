@@ -8,10 +8,10 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public class RealProductService implements ProductService {
+public class RealProductService implements ProductService{
 
     @Override
-    public void addProduct(Product product) {
+    public void addProduct(Product product){
 
         String sql ="INSERT INTO products " +"(name, category, price, stock) " +"VALUES (?, ?, ?, ?)";
         try{
@@ -30,7 +30,7 @@ public class RealProductService implements ProductService {
     }
 
     @Override
-    public void deleteProduct(int productId) {
+    public void deleteProduct(int productId){
         String sql ="DELETE FROM products " +"WHERE product_id = ?";
         try{
             Connection connection =DatabaseConnection.getInstance().getConnection();
@@ -47,7 +47,7 @@ public class RealProductService implements ProductService {
     }
 
     @Override
-    public void viewProducts() {
+    public void viewProducts(){
 
         String sql ="SELECT * FROM products";
         try{

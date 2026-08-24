@@ -20,31 +20,31 @@ public class Order {
         this.orderType = orderType;
     }
 
-    public int getOrderId() {
+    public int getOrderId(){
         return orderId;
     }
 
-    public String getCustomerName() {
+    public String getCustomerName(){
         return customerName;
     }
 
-    public String getProductName() {
+    public String getProductName(){
         return productName;
     }
 
-    public int getQuantity() {
+    public int getQuantity(){
         return quantity;
     }
 
-    public double getTotalAmount() {
+    public double getTotalAmount(){
         return totalAmount;
     }
 
-    public String getStatus() {
+    public String getStatus(){
         return status;
     }
 
-    public String getOrderType() {
+    public String getOrderType(){
         return orderType;
     }
 }
