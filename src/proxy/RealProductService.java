@@ -1,6 +1,6 @@
 package proxy;
 
-import database.DatabaseConnection;
+import singleton.DatabaseConnection;
 import model.Product;
 
 import java.sql.Connection;
