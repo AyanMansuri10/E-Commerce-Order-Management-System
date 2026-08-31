@@ -45,21 +45,4 @@ public class RealProductService implements ProductService{
             e.printStackTrace();
         }
     }
-
-    @Override
-    public void viewProducts(){
-
-        String sql ="SELECT * FROM products";
-        try{
-            Connection connection =DatabaseConnection.getInstance().getConnection();
-            PreparedStatement statement =connection.prepareStatement(sql);
-            ResultSet result =statement.executeQuery();
-            System.out.println("\n----- PRODUCTS -----");
-            while (result.next()){
-                System.out.println(result.getInt("product_id")+ " | "+ result.getString("name")+ " | "+ result.getString("category")+ " | "+ result.getDouble("price")+ " | Stock: "+ result.getInt("stock"));
-            }
-        }catch(SQLException e){
-            e.printStackTrace();
-        }
-    }
 }

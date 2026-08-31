@@ -30,8 +30,5 @@ public class ProductServiceProxy implements ProductService{
             System.out.println("Access Denied! Incorrect Admin Password.");
         }
     }
-    @Override
-    public void viewProducts(){
-        realService.viewProducts();
-    }
+    
 }

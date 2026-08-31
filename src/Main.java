@@ -521,7 +521,6 @@ public class Main{
 
         System.out.println("\n1. Add Product");
         System.out.println("2. Delete Product");
-        System.out.println("3. View Products");
         System.out.println("0. Back");
 
         System.out.print("Choice: ");
@@ -548,9 +547,6 @@ public class Main{
                 int productId =scanner.nextInt();
                 scanner.nextLine();
                 service.deleteProduct(productId);
-                break;
-            case 3:
-                service.viewProducts();
                 break;
             case 0:
                 return;
